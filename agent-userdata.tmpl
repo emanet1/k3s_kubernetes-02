@@ -1,0 +1,7 @@
+#! /bin/bash
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.21.8+k3s1 sh -s - agent \
+  --server https://${host}:6443 \
+  --token ${token} \
+  #--kubelet-arg=provider-id=“aws:///$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)/$(curl -s http://169.254.169.254/latest/meta-data/instance-id)”
+#This script,  deletes the cached instance id used by the monitoring scripts to ensure that we report metrics using the right instance id from the moment the instance launches.
+#rm -Rf /var/tmp/aws-mon
