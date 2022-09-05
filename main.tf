@@ -11,9 +11,27 @@ provider "aws" {
   region = "us-east-2"
 }
 
+
+resource "aws_key_pair" "deployer" {
+  key_name   = "EMMANUEL-KEY"
+  public_key = tls_private_key.rsa.public_key_openssh
+}
+
+
+  # RSA key of size 4096 bits
+resource "tls_private_key" "rsa" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "local_file" "TF-key" {
+    content  = tls_private_key.rsa.private_key_pem
+    filename = "tfkey"
+}
+
 resource "aws_instance" "master" {
   ami        = "ami-0960ab670c8bb45f3"
-  key_name = "mydev1"
+  key_name = "EMMANUEL-KEY"
   vpc_security_group_ids = [aws_security_group.k3s_server.id]
   instance_type          = "t3a.medium"
   user_data = base64encode(templatefile("${path.module}/server-userdata.tmpl", {
@@ -31,7 +49,7 @@ resource "aws_instance" "master" {
 
 resource "aws_instance" "worker" {
   ami = "ami-0960ab670c8bb45f3" 
-  key_name = "mydev1"
+  key_name = "EMMANUEL-KEY"
   vpc_security_group_ids = [aws_security_group.k3s_agent.id]
   instance_type = "t3a.medium" 
   user_data = base64encode(templatefile("${path.module}/agent-userdata.tmpl", {
